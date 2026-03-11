@@ -331,7 +331,9 @@ def get_stock_list() -> pd.DataFrame:
         df = ak.stock_info_a_code_name()
         if df is None or df.empty:
             return pd.DataFrame(columns=["code", "name"])
-        df["code"] = df["code"].astype(str).str.zfill(6)
+
+        df["code"] = df["code"].astype(str).str.strip().str.zfill(6)
+        df["name"] = df["name"].astype(str).str.strip()
         return df
     except Exception:
         return pd.DataFrame(columns=["code", "name"])
@@ -340,12 +342,16 @@ def get_stock_list() -> pd.DataFrame:
 def get_stock_name_by_code(stock_code: str) -> str:
     code = normalize_stock_code(stock_code)
     stock_list = get_stock_list()
+
     if stock_list.empty:
-        return code
+        return "未识别到股票名称"
+
     match = stock_list[stock_list["code"] == code]
+
     if not match.empty:
         return str(match.iloc[0]["name"])
-    return code
+
+    return "未识别到股票名称"
 
 
 # =========================
